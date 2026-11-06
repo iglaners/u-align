@@ -15,7 +15,7 @@
             --text: #1d1d1f;
             --card-bg: #ffffff;
             --primary: #2c3e50;
-            --accent: #27ae60; /* Изумрудный / клеверный оттенок */
+            --accent: #27ae60;
             --danger: #ff3b30;
             --border: #e5e5ea;
             --nav-bg: rgba(255, 255, 255, 0.9);
@@ -52,7 +52,6 @@
             border-bottom: 1px solid var(--border);
         }
 
-        /* Минималистичный логотип U с мотивом клевера */
         .logo-svg {
             width: 40px;
             height: 40px;
@@ -235,7 +234,6 @@
             <center>
                 <svg class="logo-svg" viewBox="0 0 100 100" style="width: 80px; height: 80px; margin-bottom: 20px;">
                     <path d="M 25 20 V 50 C 25 70 40 85 50 85 C 60 85 75 70 75 50 V 20" />
-                    <!-- Мотив клевера/искры -->
                     <circle cx="50" cy="50" r="4" fill="var(--text)" />
                 </svg>
                 <h2>Добро пожаловать в U-Align</h2>
@@ -381,11 +379,10 @@
     </div>
 
     <script>
-        // ================= STATE MANAGEMENT =================
         let state = {
             profile: { name: '', emoji: '🍀' },
             config: { totalTrays: 0, defaultDays: 14, startDate: null },
-            trays: [], // { num, startDate, endDate }
+            trays: [],
             logs: [],
             currentTrayNum: 1,
             theme: 'light',
@@ -403,7 +400,6 @@
             localStorage.setItem('ualign_state', JSON.stringify(state));
         }
 
-        // ================= INITIALIZATION =================
         function initApp() {
             loadState();
             applyTheme(state.theme);
@@ -434,7 +430,6 @@
             updateUI();
         }
 
-        // ================= SCHEDULE ENGINE =================
         function addDays(dateStr, days) {
             let d = new Date(dateStr);
             d.setDate(d.getDate() + days);
@@ -470,7 +465,6 @@
             const newEnd = prompt(`Капа #${tray.num}\nВведите новую дату окончания (ГГГГ-ММ-ДД):`, tray.endDate);
             if (newEnd && newEnd !== tray.endDate) {
                 tray.endDate = newEnd;
-                // Recalculate personal cycle
                 const startD = new Date(tray.startDate);
                 const endD = new Date(tray.endDate);
                 tray.cycleDays = Math.round((endD - startD) / 86400000);
@@ -481,7 +475,6 @@
             }
         }
 
-        // ================= UI & LOGIC =================
         function updateUI() {
             document.getElementById('ui-name').innerText = state.profile.name;
             document.getElementById('ui-emoji').innerText = state.profile.emoji;
@@ -572,7 +565,6 @@
             state.trays.forEach((tray, index) => {
                 const isActive = tray.num === state.currentTrayNum;
                 
-                // Высчитываем количество дней
                 const d1 = new Date(tray.startDate);
                 const d2 = new Date(tray.endDate);
                 const daysCount = Math.round((d2 - d1) / 86400000);
@@ -617,15 +609,14 @@
                     </div>
                 `;
 
-                // Логика свайпа
                 let startX = 0;
                 el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
                 el.addEventListener('touchend', e => {
                     let endX = e.changedTouches[0].clientX;
-                    if (startX - endX > 40) { // Свайп влево
+                    if (startX - endX > 40) { 
                         document.querySelectorAll('.log-entry').forEach(node => node.classList.remove('swiped'));
                         el.classList.add('swiped');
-                    } else if (endX - startX > 40) { // Свайп вправо
+                    } else if (endX - startX > 40) { 
                         el.classList.remove('swiped');
                     }
                 }, {passive: true});
@@ -634,12 +625,10 @@
             });
         }
 
-        // ================= CRUD LOGS =================
         function openLogModal(id = null) {
             document.getElementById('log-modal').classList.add('active');
             
             if (id) {
-                // Режим редактирования
                 const log = state.logs.find(l => l.id === id);
                 document.getElementById('modal-title').innerText = "Редактировать запись";
                 document.getElementById('log-edit-id').value = log.id;
@@ -648,7 +637,6 @@
                 document.getElementById('log-discomfort').value = log.discomfort || 0;
                 document.getElementById('log-note').value = log.note || '';
             } else {
-                // Режим создания
                 document.getElementById('modal-title').innerText = "Новая запись";
                 document.getElementById('log-edit-id').value = "";
                 document.getElementById('log-type').value = "Ощущения";
@@ -674,13 +662,11 @@
             };
 
             if (id) {
-                // Обновляем существующий
                 const idx = state.logs.findIndex(l => l.id === id);
                 if (idx !== -1) {
                     state.logs[idx] = { ...state.logs[idx], ...logData };
                 }
             } else {
-                // Создаем новый
                 logData.id = Date.now().toString();
                 logData.date = new Date().toISOString();
                 state.logs.push(logData);
@@ -703,7 +689,6 @@
             }
         }
 
-        // ================= APP UTILS =================
         function nav(viewId) {
             document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
             document.getElementById('view-' + viewId).classList.add('active');
@@ -754,7 +739,6 @@
             }
         }
 
-        // ================= SERVICE WORKER REGISTRATION =================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(err => {
@@ -763,7 +747,6 @@
             });
         }
 
-        // Запуск
         initApp();
     </script>
 </body>
