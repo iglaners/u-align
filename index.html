@@ -72,38 +72,12 @@
             -webkit-appearance: none; margin: 0; 
         }
 
-        /* --- НОВЫЕ СТИЛИ ДЛЯ СВАЙПА ЗАПИСЕЙ --- */
-        .log-item-container {
-            position: relative;
-            overflow: hidden;
-            border-radius: 0.75rem;
-            margin-bottom: 0.5rem;
-        }
-        .log-item-swipe {
-            position: relative;
-            z-index: 10;
-            transition: transform 0.3s ease;
-        }
-        .log-item-container.swiped .log-item-swipe {
-            transform: translateX(-120px);
-        }
-        .log-actions {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            width: 120px;
-            display: flex;
-            z-index: 1;
-        }
-        .log-action-btn {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            border: none;
-        }
+        /* --- СТИЛИ ДЛЯ СВАЙПА ЗАПИСЕЙ --- */
+        .log-item-container { position: relative; overflow: hidden; border-radius: 0.75rem; margin-bottom: 0.5rem; }
+        .log-item-swipe { position: relative; z-index: 10; transition: transform 0.3s ease; }
+        .log-item-container.swiped .log-item-swipe { transform: translateX(-100px); }
+        .log-actions { position: absolute; right: 0; top: 0; bottom: 0; width: 100px; display: flex; z-index: 1; }
+        .log-action-btn { flex: 1; display: flex; align-items: center; justify-content: center; color: white; border: none; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 font-sans h-screen flex flex-col transition-colors duration-300">
@@ -238,7 +212,7 @@
                 </div>
             </div>
 
-            <!-- Quick Actions (Очищаем ID перед открытием, чтобы создать новую запись) -->
+            <!-- Quick Actions -->
             <div class="grid grid-cols-2 gap-3">
                 <button onclick="document.getElementById('edit-sensation-id').value=''; openModal('modal-sensation')" class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-2 active:scale-95 transition-all">
                     <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
@@ -309,4 +283,747 @@
                         <i data-lucide="bell" class="w-5 h-5 text-slate-400"></i>
                         <div>
                             <span class="font-semibold text-sm block">Уведомления</span>
-                            <span class="text-[10px]
+                            <span class="text-[10px] text-slate-500 leading-tight block" id="fcm-status">Требуется разрешение</span>
+                        </div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="notification-toggle" class="sr-only peer" onchange="setupNotifications()">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-800 dark:peer-checked:bg-slate-400"></div>
+                    </label>
+                </div>
+
+                <div class="hidden p-4 justify-between items-center bg-slate-50 dark:bg-slate-800/50">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="cloud" class="w-5 h-5 text-slate-400"></i>
+                        <div>
+                            <span class="font-semibold text-sm block">Облачная синхронизация</span>
+                            <span class="text-[10px] text-slate-500 leading-tight block" id="sync-status">Оффлайн (только устройство)</span>
+                        </div>
+                    </div>
+                    <div class="w-2 h-2 rounded-full bg-slate-300 transition-colors duration-500" id="sync-indicator"></div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-red-100 dark:border-red-900/30 overflow-hidden shadow-sm mt-8">
+                <div class="p-4 flex justify-between items-center text-red-500 cursor-pointer" onclick="resetData()">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        <span class="font-semibold text-sm">Сбросить все данные</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav id="bottom-nav" class="fixed bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 z-40 pb-safe hidden transition-colors">
+        <div class="flex justify-around items-center h-16 px-2">
+            <button onclick="switchTab('home')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-slate-800 dark:text-slate-100 transition-colors">
+                <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                <span class="text-[10px] font-bold">Главная</span>
+            </button>
+            <button onclick="switchTab('history')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-slate-400 transition-colors">
+                <i data-lucide="list" class="w-6 h-6"></i>
+                <span class="text-[10px] font-bold">График</span>
+            </button>
+            <button onclick="switchTab('settings')" class="nav-btn flex-1 flex flex-col items-center justify-center gap-1 text-slate-400 transition-colors">
+                <i data-lucide="settings" class="w-6 h-6"></i>
+                <span class="text-[10px] font-bold">Настройки</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ================= MODALS ================= -->
+    
+    <!-- Modal: No Change Reason -->
+    <div id="modal-change-no" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 modal-overlay" onclick="closeModal('modal-change-no')"></div>
+        <div class="absolute bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-8 transition-transform transform translate-y-full duration-300 ease-out" id="modal-change-no-content">
+            <div class="w-12 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold mb-2">Почему не поменяли?</h3>
+            <p class="text-sm text-slate-500 mb-6">График будет автоматически пересчитан в зависимости от причины.</p>
+            
+            <div class="space-y-3">
+                <button onclick="actionNeedMoreTime()" class="w-full flex items-center justify-between p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 active:scale-95 transition-all text-left">
+                    <div>
+                        <div class="font-bold text-sm">Нужно больше времени</div>
+                        <div class="text-xs text-slate-500 mt-1">Добавить дни к текущей капе (+ сдвиг графика)</div>
+                    </div>
+                    <i data-lucide="clock" class="w-5 h-5 text-slate-400"></i>
+                </button>
+                
+                <button onclick="actionWaitingAligners()" class="w-full flex items-center justify-between p-4 rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-900/20 active:scale-95 transition-all text-left">
+                    <div>
+                        <div class="font-bold text-sm text-amber-700 dark:text-amber-500">Не выдали капы (Пауза)</div>
+                        <div class="text-xs text-amber-600/70 dark:text-amber-400/70 mt-1">Приостановить график до получения кап</div>
+                    </div>
+                    <i data-lucide="pause-circle" class="w-5 h-5 text-amber-500"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add Days -->
+    <div id="modal-add-days" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 modal-overlay" onclick="closeModal('modal-add-days')"></div>
+        <div class="absolute bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-8 transition-transform transform translate-y-full duration-300 ease-out" id="modal-add-days-content">
+            <div class="w-12 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold mb-4">Сколько дней добавить?</h3>
+            <input type="number" id="extra-days-input" min="1" max="30" value="2" class="w-full p-4 text-center text-xl font-bold rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none mb-4">
+            <button onclick="confirmAddDays()" class="w-full bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 rounded-xl active:scale-95 transition-all">
+                Добавить дни
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal: Edit Aligner (Recalculates Timeline) -->
+    <div id="modal-edit" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 modal-overlay" onclick="closeModal('modal-edit')"></div>
+        <div class="absolute bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-8 transition-transform transform translate-y-full duration-300 ease-out" id="modal-edit-content">
+            <div class="w-12 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-4"></div>
+            <h3 class="text-xl font-bold mb-1" id="edit-modal-title">Капа #X</h3>
+            <p class="text-xs text-slate-500 mb-5">Внимание: Сдвиг дат автоматически пересчитает все последующие капы.</p>
+            
+            <input type="hidden" id="edit-aligner-num">
+            
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Начало</label>
+                        <input type="date" id="edit-start" class="w-full p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Смена</label>
+                        <input type="date" id="edit-end" class="w-full p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none font-medium">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Цикл для будущих кап (Дней)</label>
+                    <input type="number" id="edit-cycle" min="1" max="30" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none" placeholder="Оставьте пустым">
+                    <p class="text-[10px] text-slate-400 mt-1">Изменит длительность носки для всех последующих кап.</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase">Заметка</label>
+                    <input type="text" id="edit-note" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none" placeholder="Заметка к этой капе">
+                </div>
+                <button onclick="saveAlignerEdit()" class="w-full mt-2 bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 rounded-xl active:scale-95 transition-all">
+                    Сохранить и пересчитать
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sensations & Events Modals -->
+    <div id="modal-sensation" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 modal-overlay" onclick="closeModal('modal-sensation')"></div>
+        <div class="absolute bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-8 transition-transform transform translate-y-full duration-300 ease-out" id="modal-sensation-content">
+            <div class="w-12 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold mb-6">Замер ощущений</h3>
+            <input type="hidden" id="edit-sensation-id" value="">
+            <div class="space-y-6">
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="font-bold text-sm text-slate-600 dark:text-slate-300">Уровень боли</label>
+                        <span id="pain-val" class="font-bold">5 / 10</span>
+                    </div>
+                    <input type="range" id="pain-slider" min="1" max="10" value="5" class="range-slider" oninput="document.getElementById('pain-val').innerText = this.value + ' / 10'">
+                </div>
+                <div>
+                    <div class="flex justify-between mb-2">
+                        <label class="font-bold text-sm text-slate-600 dark:text-slate-300">Давление / Дискомфорт</label>
+                        <span id="disc-val" class="font-bold">5 / 10</span>
+                    </div>
+                    <input type="range" id="disc-slider" min="1" max="10" value="5" class="range-slider" oninput="document.getElementById('disc-val').innerText = this.value + ' / 10'">
+                </div>
+                <button onclick="saveSensation()" class="w-full bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 rounded-xl active:scale-95 transition-all">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-event" class="fixed inset-0 z-50 hidden">
+        <div class="absolute inset-0 bg-slate-900/40 modal-overlay" onclick="closeModal('modal-event')"></div>
+        <div class="absolute bottom-0 w-full max-w-md left-1/2 -translate-x-1/2 bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-8 transition-transform transform translate-y-full duration-300 ease-out" id="modal-event-content">
+            <div class="w-12 h-1 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-6"></div>
+            <h3 class="text-xl font-bold mb-4">Добавить событие</h3>
+            <input type="hidden" id="edit-event-id" value="">
+            <div class="space-y-4">
+                <select id="event-type" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none font-medium">
+                    <option value="Установка аттачментов">Установка аттачментов</option>
+                    <option value="Сепарация / Полировка">Сепарация / Полировка</option>
+                    <option value="Проф. чистка зубов">Проф. чистка зубов</option>
+                    <option value="Прием у ортодонта">Прием у ортодонта</option>
+                    <option value="Заметка">Свои мысли (заметка)</option>
+                </select>
+                <textarea id="event-note" rows="3" class="w-full p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none" placeholder="Комментарий..."></textarea>
+                <button onclick="saveEvent()" class="w-full bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-bold py-3.5 rounded-xl active:scale-95 transition-all">Добавить</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- APP LOGIC & FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // ================= FIREBASE SETUP =================
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'ualign-tracker';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null;
+        const authToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let app, auth, db, userId;
+
+        // ================= UTILS =================
+        const todayStr = () => new Date().toLocaleDateString('en-CA');
+        
+        function addDays(dateStr, days) {
+            const d = new Date(dateStr);
+            d.setDate(d.getDate() + parseInt(days));
+            return d.toLocaleDateString('en-CA');
+        }
+
+        function diffDays(startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            return Math.round((end - start) / (1000 * 60 * 60 * 24));
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return '--';
+            const d = new Date(dateStr);
+            return d.toLocaleDateString('ru-RU', { day: '2-digit', month: 'short', year: 'numeric' }).replace(' г.', '');
+        }
+
+        // ================= STATE & SYNC =================
+        let state = {
+            profile: { name: '', emoji: '😎', total: 20, cycle: 14, theme: 'light' },
+            schedule: [],
+            currentNum: 1,
+            isPaused: false,
+            logs: [],
+            fcmToken: null
+        };
+
+        function loadData() {
+            const saved = localStorage.getItem('ualign_data');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (parsed && parsed.schedule && parsed.schedule.length > 0) {
+                        state = parsed;
+                    }
+                } catch(e) {
+                    console.error("Local load error", e);
+                }
+            }
+            applyTheme();
+        }
+
+        async function syncToCloud() {
+            if (!db || !userId) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'data', 'state');
+                await setDoc(docRef, { state: state, updatedAt: Date.now() }, { merge: true });
+                document.getElementById('sync-status').innerText = 'Синхронизировано';
+                document.getElementById('sync-indicator').classList.replace('bg-slate-300', 'bg-green-500');
+            } catch (e) {
+                console.warn('Cloud save failed', e);
+                document.getElementById('sync-status').innerText = 'Оффлайн режим';
+                document.getElementById('sync-indicator').classList.replace('bg-green-500', 'bg-slate-300');
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('ualign_data', JSON.stringify(state));
+            syncToCloud();
+        }
+
+        function resetData() {
+            if (confirm('Внимание! Это удалит все данные с устройства. Продолжить?')) {
+                localStorage.removeItem('ualign_data');
+                location.reload();
+            }
+        }
+
+        // ================= TIMELINE ENGINE =================
+        function cascadeDates(startIndex, newCycle = null) {
+            for (let i = startIndex; i < state.schedule.length; i++) {
+                if (i > 0) state.schedule[i].start = state.schedule[i-1].end;
+                
+                let cycleLength = newCycle;
+                if (!cycleLength) {
+                    cycleLength = diffDays(state.schedule[i].start, state.schedule[i].end);
+                    if (isNaN(cycleLength) || cycleLength <= 0) cycleLength = state.profile.cycle;
+                }
+                state.schedule[i].end = addDays(state.schedule[i].start, cycleLength);
+            }
+            saveData();
+        }
+
+        function generateInitialSchedule(startDate) {
+            state.schedule = [];
+            let currentStart = startDate;
+            for (let i = 1; i <= state.profile.total; i++) {
+                let end = addDays(currentStart, state.profile.cycle);
+                state.schedule.push({ num: i, start: currentStart, end: end, note: '' });
+                currentStart = end;
+            }
+        }
+
+        // ================= ACTIONS =================
+        function actionChangeYes() {
+            const currentIdx = state.currentNum - 1;
+            if (currentIdx >= state.profile.total - 1) {
+                alert('Поздравляем! Вы закончили лечение!');
+                return;
+            }
+            state.schedule[currentIdx].end = todayStr();
+            cascadeDates(currentIdx + 1);
+            state.currentNum++;
+            saveData();
+            renderHome();
+        }
+
+        function actionNeedMoreTime() {
+            closeModal('modal-change-no');
+            openModal('modal-add-days');
+        }
+
+        function confirmAddDays() {
+            const days = parseInt(document.getElementById('extra-days-input').value);
+            const currentIdx = state.currentNum - 1;
+            state.schedule[currentIdx].end = addDays(state.schedule[currentIdx].end, days);
+            cascadeDates(currentIdx + 1);
+            saveData();
+            closeModal('modal-add-days');
+            renderHome();
+        }
+
+        function actionWaitingAligners() {
+            state.isPaused = true;
+            const currentIdx = state.currentNum - 1;
+            state.schedule[currentIdx].end = todayStr();
+            saveData();
+            closeModal('modal-change-no');
+            renderHome();
+        }
+
+        function actionResumeTreatment() {
+            state.isPaused = false;
+            const currentIdx = state.currentNum - 1;
+            if (currentIdx < state.profile.total - 1) {
+                state.schedule[currentIdx].end = todayStr();
+                cascadeDates(currentIdx + 1);
+                state.currentNum++;
+            }
+            saveData();
+            renderHome();
+        }
+
+        // ================= UI RENDERING =================
+        function applyTheme() {
+            const isDark = state.profile.theme === 'dark';
+            if (isDark) document.documentElement.classList.add('dark');
+            else document.documentElement.classList.remove('dark');
+            document.getElementById('theme-toggle').checked = isDark;
+        }
+
+        document.getElementById('theme-toggle').addEventListener('change', (e) => {
+            state.profile.theme = e.target.checked ? 'dark' : 'light';
+            applyTheme();
+            saveData();
+        });
+
+        function switchTab(tabId) {
+            ['screen-setup', 'screen-home', 'screen-history', 'screen-settings'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(`screen-${tabId}`).classList.remove('hidden');
+
+            if (tabId !== 'setup') {
+                document.querySelectorAll('.nav-btn').forEach(btn => {
+                    btn.classList.remove('text-slate-800', 'dark:text-slate-100');
+                    btn.classList.add('text-slate-400');
+                });
+                const activeBtn = document.querySelector(`.nav-btn[onclick="switchTab('${tabId}')"]`);
+                if (activeBtn) {
+                    activeBtn.classList.remove('text-slate-400');
+                    activeBtn.classList.add('text-slate-800', 'dark:text-slate-100');
+                }
+            }
+
+            if (tabId === 'home') renderHome();
+            if (tabId === 'history') renderHistory();
+            if (tabId === 'settings') renderSettings();
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function renderHome() {
+            document.getElementById('home-greeting').innerText = `Привет, ${state.profile.emoji} ${state.profile.name}!`;
+            document.getElementById('header-avatar').innerText = state.profile.emoji;
+            document.getElementById('header-avatar').classList.remove('hidden');
+            
+            const currentObj = state.schedule[state.currentNum - 1];
+            
+            const actionCard = document.getElementById('home-action-card');
+            const pausedCard = document.getElementById('home-paused-card');
+            actionCard.classList.add('hidden');
+            pausedCard.classList.add('hidden');
+
+            const today = todayStr();
+            const daysLeft = diffDays(today, currentObj.end);
+
+            if (state.isPaused) {
+                pausedCard.classList.remove('hidden');
+                document.getElementById('home-days-left').innerText = "Пауза";
+            } else if (today >= currentObj.end) {
+                actionCard.classList.remove('hidden');
+                document.getElementById('home-days-left').innerText = "Время менять!";
+                document.getElementById('home-days-left').parentElement.classList.add('bg-amber-100', 'text-amber-700', 'dark:bg-amber-900', 'dark:text-amber-400');
+            } else {
+                document.getElementById('home-days-left').innerText = `Осталось ${daysLeft} дн.`;
+                document.getElementById('home-days-left').parentElement.classList.remove('bg-amber-100', 'text-amber-700', 'dark:bg-amber-900', 'dark:text-amber-400');
+            }
+
+            const progress = (state.currentNum / state.profile.total) * 100;
+            document.getElementById('progress-bar').style.width = `${progress}%`;
+            
+            document.getElementById('home-total-aligners').innerText = `Всего: ${state.profile.total}`;
+            document.getElementById('home-current-aligner').innerText = state.currentNum;
+            document.getElementById('home-start-date').innerText = formatDate(currentObj.start);
+            document.getElementById('home-end-date').innerText = formatDate(currentObj.end);
+
+            renderLogs(currentObj);
+        }
+
+        function renderLogs(currentObj) {
+            const logsContainer = document.getElementById('home-recent-logs');
+            logsContainer.innerHTML = '';
+            
+            const periodLogs = state.logs.filter(l => l.date >= currentObj.start && l.date <= currentObj.end);
+            
+            if (periodLogs.length === 0) {
+                logsContainer.innerHTML = '<div class="text-xs text-slate-400 px-1 italic">Записей нет</div>';
+            } else {
+                periodLogs.slice(-3).reverse().forEach(log => {
+                    const isSens = log.type === 'sensation';
+                    const text = isSens 
+                        ? `Боль: ${log.pain}/10, Дискомфорт: ${log.disc}/10` 
+                        : `${log.eventType}. ${log.note || ''}`;
+
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'log-item-container bg-slate-100/50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800';
+                    wrapper.innerHTML = `
+                        <div class="log-actions">
+                            <button class="log-action-btn bg-emerald-500" onclick="editLogInit(${log.id})">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </button>
+                            <button class="log-action-btn bg-red-500" onclick="deleteLog(${log.id})">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="log-item-swipe p-3 flex items-center gap-3 bg-slate-50 dark:bg-slate-800">
+                            <div class="text-[10px] text-slate-400 w-12 text-center leading-tight">${formatDate(log.date)}</div>
+                            <div class="w-px h-6 bg-slate-200 dark:bg-slate-700"></div>
+                            <span class="text-xs font-medium text-slate-700 dark:text-slate-300 truncate">${text}</span>
+                        </div>
+                    `;
+
+                    let startX = 0;
+                    wrapper.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
+                    wrapper.addEventListener('touchend', e => {
+                        let endX = e.changedTouches[0].clientX;
+                        if (startX - endX > 40) { 
+                            document.querySelectorAll('.log-item-container').forEach(node => node.classList.remove('swiped'));
+                            wrapper.classList.add('swiped');
+                        } else if (endX - startX > 40) { 
+                            wrapper.classList.remove('swiped');
+                        }
+                    }, {passive: true});
+
+                    logsContainer.appendChild(wrapper);
+                });
+                if (window.lucide) lucide.createIcons();
+            }
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('history-list');
+            container.innerHTML = '';
+            
+            state.schedule.forEach((item, index) => {
+                const isCurrent = item.num === state.currentNum;
+                const isPast = item.num < state.currentNum;
+                
+                let dotColor = 'bg-slate-200 dark:bg-slate-700 border-2 border-white dark:border-slate-900';
+                if (isCurrent) dotColor = 'bg-dental-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]';
+                if (isPast) dotColor = 'bg-slate-400 dark:bg-slate-600';
+                
+                const noteHtml = item.note ? `<div class="text-xs mt-1 text-slate-500 bg-slate-100 dark:bg-slate-800 inline-block px-2 py-0.5 rounded">${item.note}</div>` : '';
+
+                container.innerHTML += `
+                    <div class="relative cursor-pointer group" onclick="openEditModal(${index})">
+                        <div class="absolute -left-[27px] top-4 w-3.5 h-3.5 rounded-full ${dotColor} z-10 transition-colors"></div>
+                        
+                        <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border ${isCurrent ? 'border-slate-300 dark:border-slate-600 ring-1 ring-slate-200 dark:ring-slate-700' : 'border-slate-100 dark:border-slate-800'} mb-4">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-sm ${isCurrent ? 'text-slate-900 dark:text-white' : 'text-slate-600 dark:text-slate-300'}">
+                                    Капа ${item.num} ${isCurrent && state.isPaused ? '<span class="text-amber-500 ml-2">(Пауза)</span>' : ''}
+                                </h4>
+                            </div>
+                            <div class="text-xs font-medium text-slate-400 dark:text-slate-500 flex gap-2 items-center">
+                                <span>${formatDate(item.start)} - ${formatDate(item.end)}</span>
+                                <span class="bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded text-[10px]">${diffDays(item.start, item.end)} дн.</span>
+                            </div>
+                            ${noteHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderSettings() {
+            document.getElementById('settings-name').value = state.profile.name;
+            document.getElementById('settings-emoji').value = state.profile.emoji;
+            
+            if (state.fcmToken && "Notification" in window && Notification.permission === "granted") {
+                document.getElementById('notification-toggle').checked = true;
+                document.getElementById('fcm-status').innerText = "Активны";
+            } else {
+                document.getElementById('notification-toggle').checked = false;
+                document.getElementById('fcm-status').innerText = "Отключены";
+            }
+        }
+
+        function saveProfile() {
+            state.profile.name = document.getElementById('settings-name').value || 'Друг';
+            state.profile.emoji = document.getElementById('settings-emoji').value || '😎';
+            saveData();
+            alert('Профиль сохранен');
+            renderHome();
+        }
+
+        // ================= EDIT MODAL =================
+        function openEditModal(index) {
+            const item = state.schedule[index];
+            document.getElementById('edit-modal-title').innerText = `Изменить Капу #${item.num}`;
+            document.getElementById('edit-aligner-num').value = index;
+            document.getElementById('edit-start').value = item.start;
+            document.getElementById('edit-end').value = item.end;
+            document.getElementById('edit-cycle').value = '';
+            document.getElementById('edit-note').value = item.note || '';
+            openModal('modal-edit');
+        }
+
+        function saveAlignerEdit() {
+            const idx = parseInt(document.getElementById('edit-aligner-num').value);
+            state.schedule[idx].start = document.getElementById('edit-start').value;
+            state.schedule[idx].end = document.getElementById('edit-end').value;
+            state.schedule[idx].note = document.getElementById('edit-note').value;
+
+            let newCycle = parseInt(document.getElementById('edit-cycle').value);
+            if (isNaN(newCycle) || newCycle <= 0) newCycle = null;
+
+            cascadeDates(idx + 1, newCycle);
+            saveData();
+            closeModal('modal-edit');
+            renderHistory();
+            renderHome();
+        }
+
+        // ================= LOGS =================
+        function deleteLog(id) {
+            if(confirm('Точно удалить эту запись?')) {
+                state.logs = state.logs.filter(l => l.id !== id);
+                saveData();
+                renderHome();
+            }
+        }
+
+        function editLogInit(id) {
+            const log = state.logs.find(l => l.id === id);
+            if(!log) return;
+            if(log.type === 'sensation') {
+                document.getElementById('edit-sensation-id').value = log.id;
+                document.getElementById('pain-slider').value = log.pain;
+                document.getElementById('pain-val').innerText = log.pain + ' / 10';
+                document.getElementById('disc-slider').value = log.disc;
+                document.getElementById('disc-val').innerText = log.disc + ' / 10';
+                openModal('modal-sensation');
+            } else {
+                document.getElementById('edit-event-id').value = log.id;
+                document.getElementById('event-type').value = log.eventType;
+                document.getElementById('event-note').value = log.note || '';
+                openModal('modal-event');
+            }
+        }
+
+        function saveSensation() {
+            const editId = document.getElementById('edit-sensation-id').value;
+            const painVal = parseInt(document.getElementById('pain-slider').value);
+            const discVal = parseInt(document.getElementById('disc-slider').value);
+            
+            if(editId) {
+                const idx = state.logs.findIndex(l => l.id == editId);
+                if(idx !== -1) {
+                    state.logs[idx].pain = painVal;
+                    state.logs[idx].disc = discVal;
+                }
+            } else {
+                const today = todayStr();
+                const existingIdx = state.logs.findIndex(l => l.type === 'sensation' && l.date === today);
+                if(existingIdx !== -1) {
+                    state.logs[existingIdx].pain = painVal;
+                    state.logs[existingIdx].disc = discVal;
+                } else {
+                    state.logs.push({
+                        id: Date.now(), date: today, type: 'sensation',
+                        pain: painVal,
+                        disc: discVal
+                    });
+                }
+            }
+            saveData(); closeModal('modal-sensation'); renderHome();
+        }
+
+        function saveEvent() {
+            const editId = document.getElementById('edit-event-id').value;
+            const eType = document.getElementById('event-type').value;
+            const eNote = document.getElementById('event-note').value;
+
+            if(editId) {
+                const idx = state.logs.findIndex(l => l.id == editId);
+                if(idx !== -1) {
+                    state.logs[idx].eventType = eType;
+                    state.logs[idx].note = eNote;
+                }
+            } else {
+                state.logs.push({
+                    id: Date.now(), date: todayStr(), type: 'event',
+                    eventType: eType,
+                    note: eNote
+                });
+            }
+            document.getElementById('event-note').value = '';
+            saveData(); closeModal('modal-event'); renderHome();
+        }
+
+        // ================= PWA & NOTIFICATIONS =================
+        async function setupNotifications() {
+            const toggle = document.getElementById('notification-toggle');
+            const statusText = document.getElementById('fcm-status');
+            
+            if (!("Notification" in window)) {
+                alert("Уведомления не поддерживаются вашим устройством.");
+                toggle.checked = false;
+                return;
+            }
+            
+            if (toggle.checked) {
+                try {
+                    const perm = await Notification.requestPermission();
+                    if (perm === "granted") {
+                        statusText.innerText = "Активны";
+                        alert("Уведомления настроены! Приложение будет напоминать вам о смене кап.");
+                    } else {
+                        statusText.innerText = "Запрещено в ОС";
+                        toggle.checked = false;
+                        alert("Разрешение на уведомления отклонено в настройках iPhone.");
+                    }
+                } catch(e) {
+                    console.error('Notification Error:', e);
+                    statusText.innerText = "Ошибка";
+                    toggle.checked = false;
+                }
+            } else {
+                statusText.innerText = "Отключены";
+            }
+        }
+
+        function registerDynamicSW() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(() => console.log('Service Worker успешно зарегистрирован.'))
+                    .catch(e => console.log('Service Worker ошибка регистрации:', e));
+            }
+        }
+
+        // ================= MODAL UTILS =================
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+            setTimeout(() => document.getElementById(id + '-content').classList.remove('translate-y-full'), 10);
+        }
+        function closeModal(id) {
+            document.getElementById(id + '-content').classList.add('translate-y-full');
+            setTimeout(() => document.getElementById(id).classList.add('hidden'), 300);
+        }
+
+        // ================= GLOBAL EXPORT FOR INLINE HTML HANDLERS =================
+        Object.assign(window, {
+            actionChangeYes, openModal, closeModal, actionNeedMoreTime,
+            actionWaitingAligners, actionResumeTreatment, confirmAddDays,
+            saveAlignerEdit, saveSensation, saveEvent, saveProfile, resetData,
+            switchTab, setupNotifications, openEditModal,
+            deleteLog, editLogInit
+        });
+
+        // ================= INIT & FIREBASE AUTH =================
+        document.getElementById('setup-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            state.profile.name = document.getElementById('setup-name').value;
+            state.profile.emoji = document.getElementById('setup-emoji').value;
+            state.profile.total = parseInt(document.getElementById('setup-total').value);
+            state.profile.cycle = parseInt(document.getElementById('setup-cycle').value);
+            generateInitialSchedule(document.getElementById('setup-date').value);
+            saveData();
+            document.getElementById('bottom-nav').classList.remove('hidden');
+            switchTab('home');
+        });
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            loadData();
+            lucide.createIcons();
+            registerDynamicSW();
+
+            if (state.schedule.length === 0) {
+                document.getElementById('setup-date').value = todayStr();
+                document.getElementById('screen-setup').classList.remove('hidden');
+            } else {
+                document.getElementById('bottom-nav').classList.remove('hidden');
+                switchTab('home');
+            }
+
+            // Init Firebase Cloud Sync
+            if (firebaseConfig) {
+                try {
+                    app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    if (authToken) await signInWithCustomToken(auth, authToken);
+                    else await signInAnonymously(auth);
+                    
+                    userId = auth.currentUser.uid;
+                    
+                    // Fetch latest cloud state on init
+                    const snap = await getDoc(doc(db, 'artifacts', appId, 'users', userId, 'data', 'state'));
+                    if (snap.exists() && snap.data().state && snap.data().state.schedule.length > 0) {
+                        // Берем облачные данные только если они новее или локальные пусты
+                        state = snap.data().state;
+                        localStorage.setItem('ualign_data', JSON.stringify(state));
+                        applyTheme();
+                        if(state.schedule.length > 0) switchTab('home');
+                    }
+                    
+                    document.getElementById('sync-status').innerText = 'Подключено';
+                    document.getElementById('sync-indicator').classList.replace('bg-slate-300', 'bg-green-500');
+                } catch(e) {
+                    console.error("Firebase Auth/Sync Error", e);
+                    document.getElementById('sync-status').innerText = 'Оффлайн режим';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
