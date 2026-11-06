@@ -1,4 +1,5 @@
-const CACHE_NAME = 'ualign-cache-v2';
+const CACHE_NAME = 'ualign-cache-v3';
+// Учитываем базовый путь репозитория на GitHub Pages (/u-align/)
 const urlsToCache = [
   './',
   './index.html',
