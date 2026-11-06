@@ -1,753 +1,312 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>U-Align</title>
-    <link rel="manifest" href="./manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="theme-color" content="#ffffff" id="theme-color-meta">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Трекер Элайнеров</title>
     
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Элайнеры">
+    <meta name="theme-color" content="#0ea5e9"> <!-- Tailwind sky-500 -->
+
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/192/000000/tooth.png">
+    <link rel="manifest" id="manifest-placeholder">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dental: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --bg: #f8f9fa;
-            --text: #1d1d1f;
-            --card-bg: #ffffff;
-            --primary: #2c3e50;
-            --accent: #27ae60;
-            --danger: #ff3b30;
-            --border: #e5e5ea;
-            --nav-bg: rgba(255, 255, 255, 0.9);
-        }
-
-        [data-theme="dark"] {
-            --bg: #000000;
-            --text: #f5f5f7;
-            --card-bg: #1c1c1e;
-            --primary: #ecf0f1;
-            --accent: #2ecc71;
-            --border: #38383a;
-            --nav-bg: rgba(28, 28, 30, 0.9);
-        }
-
-        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-        
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 0;
-            padding-bottom: 90px;
-            padding-top: env(safe-area-inset-top);
-            transition: background-color 0.3s;
             -webkit-tap-highlight-color: transparent;
-        }
-
-        .header {
-            padding: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .logo-svg {
-            width: 40px;
-            height: 40px;
-            fill: none;
-            stroke: var(--text);
-            stroke-width: 2;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-        }
-
-        .container { padding: 20px; }
-        
-        .card {
-            background: var(--card-bg);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            border: 1px solid var(--border);
-        }
-
-        h1, h2, h3 { margin-top: 0; font-weight: 600; }
-        
-        input, select, button, textarea {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: var(--bg);
-            color: var(--text);
-            font-size: 16px;
-        }
-
-        button.primary {
-            background: var(--text);
-            color: var(--bg);
-            border: none;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* Навигация */
-        .tab-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 80px;
-            background: var(--nav-bg);
-            backdrop-filter: blur(10px);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid var(--border);
+            user-select: none;
+            padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
-            z-index: 100;
+        }
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
+        
+        .modal-overlay { backdrop-filter: blur(4px); }
+        
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #e2e8f0;
+            outline: none;
+        }
+        .dark .range-slider { background: #334155; }
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        /* Убираем стрелочки у input type="number" */
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; margin: 0; 
         }
 
-        .tab-btn {
-            background: none;
-            border: none;
-            color: gray;
-            font-size: 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            width: auto;
-            margin: 0;
-            padding: 10px;
-        }
-        .tab-btn.active { color: var(--text); font-weight: bold; }
-        .tab-icon { font-size: 24px; }
-
-        .view { display: none; }
-        .view.active { display: block; }
-
-        /* Логи и Свайп */
-        .log-entry {
+        /* --- НОВЫЕ СТИЛИ ДЛЯ СВАЙПА ЗАПИСЕЙ --- */
+        .log-item-container {
             position: relative;
             overflow: hidden;
-            border-radius: 16px;
-            background: var(--card-bg);
-            margin-bottom: 12px;
-            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            margin-bottom: 0.5rem;
         }
-        
-        .log-swipe-content {
-            padding: 16px;
-            background: var(--card-bg);
+        .log-item-swipe {
             position: relative;
-            z-index: 2;
+            z-index: 10;
             transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
         }
-
-        .log-entry.swiped .log-swipe-content {
-            transform: translateX(-140px);
+        .log-item-container.swiped .log-item-swipe {
+            transform: translateX(-120px);
         }
-
         .log-actions {
             position: absolute;
             right: 0;
             top: 0;
             bottom: 0;
-            width: 140px;
+            width: 120px;
             display: flex;
             z-index: 1;
         }
-
-        .action-btn {
+        .log-action-btn {
             flex: 1;
-            border: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
             color: white;
-            cursor: pointer;
-            margin: 0;
-            padding: 0;
-            border-radius: 0;
+            border: none;
         }
-        .btn-edit { background: #34C759; }
-        .btn-delete { background: var(--danger); }
-
-        /* График */
-        .tray-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .tray-item:last-child { border-bottom: none; }
-        .tray-info { display: flex; flex-direction: column; gap: 4px; }
-        .tray-badge {
-            background: var(--text);
-            color: var(--bg);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-        }
-        .days-badge {
-            background: var(--border);
-            color: var(--text);
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            margin-left: 8px;
-        }
-
-        /* Модалка */
-        .modal-overlay {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            padding: 20px;
-        }
-        .modal-overlay.active { display: flex; }
-        
-        .flex-row { display: flex; gap: 10px; }
-        .hidden { display: none !important; }
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-200 font-sans h-screen flex flex-col transition-colors duration-300">
 
-    <!-- Onboarding -->
-    <div id="onboarding" class="view">
-        <div class="container" style="margin-top: 50px;">
-            <center>
-                <svg class="logo-svg" viewBox="0 0 100 100" style="width: 80px; height: 80px; margin-bottom: 20px;">
-                    <path d="M 25 20 V 50 C 25 70 40 85 50 85 C 60 85 75 70 75 50 V 20" />
-                    <circle cx="50" cy="50" r="4" fill="var(--text)" />
+    <!-- Header -->
+    <header class="shrink-0 bg-white dark:bg-slate-900 shadow-sm z-30 transition-colors border-b border-slate-100 dark:border-slate-800">
+        <div class="max-w-md mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3 text-slate-800 dark:text-slate-100">
+                <!-- Стилизованный логотип U + Клевер -->
+                <svg width="28" height="28" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M25 20V55C25 68.8071 36.1929 80 50 80C63.8071 80 75 68.8071 75 55V20" stroke="currentColor" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M75 25C75 16.7157 81.7157 10 90 10C90 18.2843 83.2843 25 75 25ZM75 25C66.7157 25 60 18.2843 60 10C60 10 66.7157 10 75 10C83.2843 10 83.2843 16.7157 83.2843 25Z" fill="#10b981" opacity="0.8"/>
+                    <path d="M85 35C93.2843 35 100 28.2843 100 20C91.7157 20 85 26.7157 85 35ZM85 35C85 43.2843 91.7157 50 100 50C100 50 93.2843 50 85 50C76.7157 50 76.7157 43.2843 76.7157 35Z" fill="#10b981" opacity="0.8"/>
                 </svg>
-                <h2>Добро пожаловать в U-Align</h2>
-                <p style="color: gray; margin-bottom: 30px;">Стойкость и уверенность на пути к идеальной улыбке.</p>
-            </center>
-            
-            <label>Как вас зовут?</label>
-            <input type="text" id="setup-name" placeholder="Ярослав">
-            
-            <label>Ваш любимый эмодзи</label>
-            <input type="text" id="setup-emoji" placeholder="🍀">
-
-            <label>Сколько всего кап в курсе?</label>
-            <input type="number" id="setup-total" placeholder="Например, 40">
-
-            <label>Сколько дней носить одну капу?</label>
-            <input type="number" id="setup-days" placeholder="Например, 10">
-
-            <label>Дата старта лечения</label>
-            <input type="date" id="setup-start">
-
-            <button class="primary" onclick="finishSetup()" style="margin-top: 20px;">Начать</button>
+                <h1 class="text-xl font-bold tracking-wide">U-Align</h1>
+            </div>
+            <div id="header-avatar" class="text-2xl hidden">😎</div>
         </div>
-    </div>
+    </header>
 
-    <!-- Main App Structure -->
-    <div id="app-content" class="hidden">
-        <div class="header">
-            <svg class="logo-svg" viewBox="0 0 100 100">
-                <path d="M 25 20 V 50 C 25 70 40 85 50 85 C 60 85 75 70 75 50 V 20" />
-                <circle cx="50" cy="50" r="4" fill="var(--text)" />
-            </svg>
+    <!-- Main Content Area -->
+    <main class="max-w-md w-full mx-auto flex-grow overflow-y-auto relative pb-24">
+        
+        <!-- ================= SETUP SCREEN ================= -->
+        <div id="screen-setup" class="hidden p-6 flex flex-col min-h-full fade-in pb-10">
+            <div class="text-center mb-6 mt-4">
+                <h2 class="text-2xl font-bold mb-2">Настройка профиля</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm mb-4">Давайте персонализируем ваш план</p>
+                <div class="p-4 bg-dental-50 dark:bg-slate-800 rounded-xl border border-dental-100 dark:border-slate-700 italic text-sm text-dental-700 dark:text-slate-300">
+                    «Каждый день — шаг к результату. Стойкость формирует идеальную улыбку.»
+                </div>
+            </div>
+
+            <form id="setup-form" class="space-y-5">
+                <div class="flex gap-3">
+                    <div class="w-1/3">
+                        <label class="block text-xs font-medium mb-1 text-slate-500">Эмодзи</label>
+                        <input type="text" id="setup-emoji" value="😎" maxlength="2" required class="w-full p-3.5 text-center text-xl rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-dental-500 outline-none transition-all">
+                    </div>
+                    <div class="w-2/3">
+                        <label class="block text-xs font-medium mb-1 text-slate-500">Ваше Имя</label>
+                        <input type="text" id="setup-name" placeholder="Алексей" required class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-dental-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium mb-1 text-slate-500">Всего кап</label>
+                        <input type="number" id="setup-total" min="1" max="150" value="20" required class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-dental-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium mb-1 text-slate-500">Дней ношения (5-14)</label>
+                        <input type="number" id="setup-cycle" min="5" max="14" value="14" required class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-dental-500 outline-none transition-all">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium mb-1 text-slate-500">Дата начала лечения (1-я капа)</label>
+                    <input type="date" id="setup-date" required class="w-full p-3.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-dental-500 outline-none transition-all">
+                </div>
+                
+                <button type="submit" class="w-full mt-4 bg-slate-800 dark:bg-slate-100 dark:text-slate-900 text-white font-semibold py-4 rounded-xl shadow-lg transition-all active:scale-95">
+                    Сгенерировать план
+                </button>
+            </form>
+        </div>
+
+        <!-- ================= HOME SCREEN ================= -->
+        <div id="screen-home" class="hidden p-4 space-y-5 fade-in">
+            
+            <h2 class="text-2xl font-bold px-1" id="home-greeting">Привет, Имя!</h2>
+
+            <!-- Action Required: Change Aligner -->
+            <div id="home-action-card" class="hidden bg-dental-50 dark:bg-dental-900/40 border-2 border-dental-500 rounded-3xl p-5 shadow-sm">
+                <div class="flex items-center gap-3 mb-3 text-dental-600 dark:text-dental-400">
+                    <i data-lucide="alert-circle" class="w-6 h-6 animate-pulse"></i>
+                    <h3 class="font-bold text-lg">Пора менять капу!</h3>
+                </div>
+                <p class="text-sm text-slate-600 dark:text-slate-300 mb-4">Период ношения текущей капы подошел к концу. Вы надели следующую капу?</p>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="actionChangeYes()" class="bg-dental-500 hover:bg-dental-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-all">
+                        Да, поменял
+                    </button>
+                    <button onclick="openModal('modal-change-no')" class="bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-bold py-3 rounded-xl active:scale-95 transition-all">
+                        Нет
+                    </button>
+                </div>
+            </div>
+
+            <!-- Waiting / Paused State -->
+            <div id="home-paused-card" class="hidden bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 rounded-3xl p-5 shadow-sm">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-center gap-2 text-amber-600 dark:text-amber-500 font-bold">
+                        <i data-lucide="pause-circle" class="w-5 h-5"></i> Ожидание кап
+                    </div>
+                </div>
+                <p class="text-sm text-amber-700 dark:text-amber-400/80 mb-4">Лечение приостановлено. Нажмите продолжить, когда наденете новую капу.</p>
+                <button onclick="actionResumeTreatment()" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl active:scale-95 transition-all">
+                    Надел новые капы (Продолжить)
+                </button>
+            </div>
+
+            <!-- Main Progress Card -->
+            <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 shadow-sm border border-slate-100 dark:border-slate-800 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-slate-800 to-slate-400 dark:from-slate-200 dark:to-slate-500" id="progress-bar"></div>
+                
+                <div class="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    <span>Текущая</span>
+                    <span id="home-total-aligners">Всего: 20</span>
+                </div>
+                
+                <div class="flex justify-center items-baseline gap-1 mb-2">
+                    <span class="text-7xl font-black tracking-tighter text-slate-800 dark:text-white" id="home-current-aligner">1</span>
+                </div>
+                
+                <div class="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-4 py-1.5 rounded-full text-sm font-semibold mt-1">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span id="home-days-left">Осталось 5 дней</span>
+                </div>
+
+                <div class="mt-6 text-sm text-slate-500 dark:text-slate-400 flex justify-between bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3">
+                    <div class="flex flex-col text-left">
+                        <span class="text-[10px] uppercase tracking-wider">Начало</span>
+                        <strong id="home-start-date" class="text-slate-700 dark:text-slate-300">--</strong>
+                    </div>
+                    <div class="w-px bg-slate-200 dark:bg-slate-700"></div>
+                    <div class="flex flex-col text-right">
+                        <span class="text-[10px] uppercase tracking-wider">Смена</span>
+                        <strong id="home-end-date" class="text-slate-700 dark:text-slate-300">--</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions (Очищаем ID перед открытием, чтобы создать новую запись) -->
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="document.getElementById('edit-sensation-id').value=''; openModal('modal-sensation')" class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-2 active:scale-95 transition-all">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                        <i data-lucide="activity" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-sm font-semibold">Ощущения</span>
+                </button>
+                <button onclick="document.getElementById('edit-event-id').value=''; openModal('modal-event')" class="bg-white dark:bg-slate-900 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 flex flex-col items-center gap-2 active:scale-95 transition-all">
+                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center">
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                    </div>
+                    <span class="text-sm font-semibold">Событие</span>
+                </button>
+            </div>
+
+            <!-- Recent Logs Preview -->
             <div>
-                <h3 style="margin: 0;"><span id="ui-emoji"></span> <span id="ui-name"></span></h3>
-                <div style="font-size: 14px; color: gray;" id="ui-status">Капа 1 из N</div>
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 px-1">Записи (Текущая капа)</h3>
+                <div id="home-recent-logs" class="space-y-2"></div>
             </div>
         </div>
 
-        <div class="container">
-            <!-- View: Home -->
-            <div id="view-home" class="view active">
+        <!-- ================= HISTORY SCREEN ================= -->
+        <div id="screen-history" class="hidden p-4 fade-in">
+            <h2 class="text-2xl font-bold mb-1 px-1">График лечения</h2>
+            <p class="text-sm text-slate-500 px-1 mb-6">Измените даты любой капы, и последующие пересчитаются автоматически.</p>
+            
+            <div class="relative pl-5 border-l-2 border-slate-200 dark:border-slate-700 space-y-5" id="history-list">
+                <!-- Generated History Items -->
+            </div>
+        </div>
+
+        <!-- ================= SETTINGS SCREEN ================= -->
+        <div id="screen-settings" class="hidden p-4 space-y-6 fade-in">
+            <h2 class="text-2xl font-bold mb-4 px-1">Настройки</h2>
+            
+            <!-- Profile Setup -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 p-4 shadow-sm space-y-4">
+                <h3 class="font-bold text-sm text-slate-400 uppercase tracking-wider">Профиль</h3>
+                <div class="flex gap-3">
+                    <div class="w-1/4">
+                        <label class="block text-xs font-medium mb-1 text-slate-500">Эмодзи</label>
+                        <input type="text" id="settings-emoji" maxlength="2" class="w-full p-2.5 text-center text-lg rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none">
+                    </div>
+                    <div class="w-3/4">
+                        <label class="block text-xs font-medium mb-1 text-slate-500">Имя</label>
+                        <input type="text" id="settings-name" class="w-full p-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 outline-none">
+                    </div>
+                </div>
+                <button onclick="saveProfile()" class="w-full bg-slate-800 dark:bg-slate-100 text-white dark:text-slate-900 font-semibold py-2.5 rounded-xl">Сохранить профиль</button>
+            </div>
+
+            <!-- Preferences -->
+            <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-hidden shadow-sm">
+                <div class="p-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="moon" class="w-5 h-5 text-slate-400"></i>
+                        <span class="font-semibold text-sm">Темная тема</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="theme-toggle" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer dark:bg-slate-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-slate-800 dark:peer-checked:bg-slate-400"></div>
+                    </label>
+                </div>
                 
-                <div id="tray-alert" class="card hidden" style="border-color: var(--accent); background: rgba(39, 174, 96, 0.1);">
-                    <h3>Пора менять капу!</h3>
-                    <p>Сегодня по плану установка следующей капы. Вы уже поменяли?</p>
-                    <div class="flex-row">
-                        <button class="primary" style="background: var(--accent);" onclick="confirmTrayChange(true)">Да, надел</button>
-                        <button onclick="confirmTrayChange(false)">Нет</button>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <h2 id="home-current-tray">Текущая капа: #1</h2>
-                    <p style="color: gray;" id="home-tray-dates">1 ноя - 10 ноя</p>
-                    <div style="background: var(--border); height: 8px; border-radius: 4px; margin: 15px 0; overflow: hidden;">
-                        <div id="home-progress" style="background: var(--text); height: 100%; width: 50%;"></div>
-                    </div>
-                    <p id="home-days-left" style="font-weight: 600; text-align: center;">Осталось 5 дней</p>
-                </div>
-
-                <button class="primary" onclick="openLogModal()">+ Добавить запись / Замер</button>
-            </div>
-
-            <!-- View: Schedule -->
-            <div id="view-schedule" class="view">
-                <h2>График лечения</h2>
-                <p style="color: gray; font-size: 14px; margin-bottom: 20px;">Нажмите на капу, чтобы изменить дату или цикл.</p>
-                <div class="card" style="padding: 0 20px;">
-                    <div id="schedule-list"></div>
-                </div>
-            </div>
-
-            <!-- View: Logs -->
-            <div id="view-logs" class="view">
-                <h2>Журнал</h2>
-                <div id="logs-list"></div>
-            </div>
-
-            <!-- View: Settings -->
-            <div id="view-settings" class="view">
-                <h2>Настройки</h2>
-                <div class="card">
-                    <div class="flex-row" style="align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                        <span>Темная тема</span>
-                        <input type="checkbox" id="theme-toggle" onchange="toggleTheme()" style="width: auto;">
-                    </div>
-                    <div class="flex-row" style="align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                        <span>Уведомления (Локальные)</span>
-                        <input type="checkbox" id="notif-toggle" onchange="toggleNotifications()" style="width: auto;">
-                    </div>
-                    
-                    <label style="margin-top: 20px; display:block;">Изменить имя</label>
-                    <input type="text" id="set-name" onchange="updateProfile()">
-                    
-                    <label>Изменить эмодзи</label>
-                    <input type="text" id="set-emoji" onchange="updateProfile()">
-
-                    <button style="color: var(--danger); border-color: var(--danger); margin-top: 20px;" onclick="resetApp()">Сбросить все данные</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Tab Bar -->
-        <div class="tab-bar">
-            <button class="tab-btn active" onclick="nav('home')"><span class="tab-icon">🏠</span>Главная</button>
-            <button class="tab-btn" onclick="nav('schedule')"><span class="tab-icon">📅</span>График</button>
-            <button class="tab-btn" onclick="nav('logs')"><span class="tab-icon">📖</span>Записи</button>
-            <button class="tab-btn" onclick="nav('settings')"><span class="tab-icon">⚙️</span>Настройки</button>
-        </div>
-    </div>
-
-    <!-- Модальное окно Записи -->
-    <div id="log-modal" class="modal-overlay">
-        <div class="card" style="width: 100%; max-width: 400px;">
-            <h3 id="modal-title">Новая запись</h3>
-            
-            <label>Тип события</label>
-            <select id="log-type">
-                <option value="Ощущения">Замер ощущений</option>
-                <option value="Новая капа">Надел новую капу</option>
-                <option value="Чистка">Чистка зубов</option>
-                <option value="Установка аттачментов">Установка аттачментов</option>
-                <option value="Полировка">Полировка / Сепарация</option>
-                <option value="Другое">Другое</option>
-            </select>
-
-            <label>Уровень боли (0-10)</label>
-            <input type="range" id="log-pain" min="0" max="10" value="0" style="padding:0;">
-            
-            <label>Уровень дискомфорта (0-10)</label>
-            <input type="range" id="log-discomfort" min="0" max="10" value="0" style="padding:0;">
-
-            <label>Заметка</label>
-            <textarea id="log-note" rows="3" placeholder="Свои мысли, что беспокоит..."></textarea>
-            
-            <input type="hidden" id="log-edit-id" value="">
-
-            <div class="flex-row" style="margin-top: 15px;">
-                <button onclick="closeLogModal()">Отмена</button>
-                <button class="primary" onclick="saveLog()">Сохранить</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        let state = {
-            profile: { name: '', emoji: '🍀' },
-            config: { totalTrays: 0, defaultDays: 14, startDate: null },
-            trays: [],
-            logs: [],
-            currentTrayNum: 1,
-            theme: 'light',
-            notifications: false
-        };
-
-        function loadState() {
-            const saved = localStorage.getItem('ualign_state');
-            if (saved) {
-                state = JSON.parse(saved);
-            }
-        }
-
-        function saveState() {
-            localStorage.setItem('ualign_state', JSON.stringify(state));
-        }
-
-        function initApp() {
-            loadState();
-            applyTheme(state.theme);
-            document.getElementById('setup-start').valueAsDate = new Date();
-
-            if (state.config.totalTrays > 0) {
-                document.getElementById('onboarding').classList.remove('active');
-                document.getElementById('app-content').classList.remove('hidden');
-                updateUI();
-                checkTrayAlert();
-            } else {
-                document.getElementById('onboarding').classList.add('active');
-            }
-        }
-
-        function finishSetup() {
-            state.profile.name = document.getElementById('setup-name').value || 'Пользователь';
-            state.profile.emoji = document.getElementById('setup-emoji').value || '🍀';
-            state.config.totalTrays = parseInt(document.getElementById('setup-total').value) || 20;
-            state.config.defaultDays = parseInt(document.getElementById('setup-days').value) || 14;
-            state.config.startDate = document.getElementById('setup-start').value;
-            
-            generateSchedule();
-            saveState();
-            
-            document.getElementById('onboarding').classList.remove('active');
-            document.getElementById('app-content').classList.remove('hidden');
-            updateUI();
-        }
-
-        function addDays(dateStr, days) {
-            let d = new Date(dateStr);
-            d.setDate(d.getDate() + days);
-            return d.toISOString().split('T')[0];
-        }
-
-        function generateSchedule() {
-            state.trays = [];
-            let currentDate = state.config.startDate;
-            for (let i = 1; i <= state.config.totalTrays; i++) {
-                let endDate = addDays(currentDate, state.config.defaultDays);
-                state.trays.push({
-                    num: i,
-                    startDate: currentDate,
-                    endDate: endDate,
-                    cycleDays: state.config.defaultDays
-                });
-                currentDate = endDate;
-            }
-        }
-
-        function recalcCascade(fromIndex) {
-            let currentDate = state.trays[fromIndex].endDate;
-            for (let i = fromIndex + 1; i < state.trays.length; i++) {
-                state.trays[i].startDate = currentDate;
-                state.trays[i].endDate = addDays(currentDate, state.trays[i].cycleDays);
-                currentDate = state.trays[i].endDate;
-            }
-        }
-
-        function editTrayDates(index) {
-            const tray = state.trays[index];
-            const newEnd = prompt(`Капа #${tray.num}\nВведите новую дату окончания (ГГГГ-ММ-ДД):`, tray.endDate);
-            if (newEnd && newEnd !== tray.endDate) {
-                tray.endDate = newEnd;
-                const startD = new Date(tray.startDate);
-                const endD = new Date(tray.endDate);
-                tray.cycleDays = Math.round((endD - startD) / 86400000);
-                
-                recalcCascade(index);
-                saveState();
-                updateUI();
-            }
-        }
-
-        function updateUI() {
-            document.getElementById('ui-name').innerText = state.profile.name;
-            document.getElementById('ui-emoji').innerText = state.profile.emoji;
-            document.getElementById('ui-status').innerText = `Капа ${state.currentTrayNum} из ${state.config.totalTrays}`;
-            
-            document.getElementById('set-name').value = state.profile.name;
-            document.getElementById('set-emoji').value = state.profile.emoji;
-            document.getElementById('theme-toggle').checked = (state.theme === 'dark');
-            document.getElementById('notif-toggle').checked = state.notifications;
-
-            renderHome();
-            renderSchedule();
-            renderLogs();
-        }
-
-        function renderHome() {
-            const currentTray = state.trays.find(t => t.num === state.currentTrayNum);
-            if(!currentTray) return;
-
-            document.getElementById('home-current-tray').innerText = `Текущая капа: #${currentTray.num}`;
-            
-            const startD = new Date(currentTray.startDate);
-            const endD = new Date(currentTray.endDate);
-            const today = new Date();
-            
-            const fmt = (d) => d.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
-            document.getElementById('home-tray-dates').innerText = `${fmt(startD)} — ${fmt(endD)}`;
-
-            const totalMs = endD - startD;
-            const passedMs = today - startD;
-            let percent = Math.max(0, Math.min(100, (passedMs / totalMs) * 100));
-            document.getElementById('home-progress').style.width = `${percent}%`;
-
-            const daysLeft = Math.ceil((endD - today) / 86400000);
-            if (daysLeft > 0) {
-                document.getElementById('home-days-left').innerText = `Осталось ${daysLeft} дн.`;
-            } else {
-                document.getElementById('home-days-left').innerText = `Пора менять!`;
-            }
-        }
-
-        function checkTrayAlert() {
-            const currentTray = state.trays.find(t => t.num === state.currentTrayNum);
-            if(!currentTray) return;
-            const endD = new Date(currentTray.endDate);
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            endD.setHours(0,0,0,0);
-
-            if (today >= endD) {
-                document.getElementById('tray-alert').classList.remove('hidden');
-            } else {
-                document.getElementById('tray-alert').classList.add('hidden');
-            }
-        }
-
-        function confirmTrayChange(changed) {
-            document.getElementById('tray-alert').classList.add('hidden');
-            if (changed) {
-                state.currentTrayNum++;
-                state.logs.push({
-                    id: Date.now().toString(),
-                    date: new Date().toISOString(),
-                    type: "Смена капы",
-                    trayNumber: state.currentTrayNum,
-                    note: "Успешно надел новую капу"
-                });
-                saveState();
-                updateUI();
-            } else {
-                const days = prompt("Сколько дополнительных дней нужно носить эту капу?", "2");
-                if (days) {
-                    const idx = state.currentTrayNum - 1;
-                    state.trays[idx].endDate = addDays(state.trays[idx].endDate, parseInt(days));
-                    state.trays[idx].cycleDays += parseInt(days);
-                    recalcCascade(idx);
-                    saveState();
-                    updateUI();
-                }
-            }
-        }
-
-        function renderSchedule() {
-            const list = document.getElementById('schedule-list');
-            list.innerHTML = '';
-            const fmt = (dStr) => new Date(dStr).toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'});
-            
-            state.trays.forEach((tray, index) => {
-                const isActive = tray.num === state.currentTrayNum;
-                
-                const d1 = new Date(tray.startDate);
-                const d2 = new Date(tray.endDate);
-                const daysCount = Math.round((d2 - d1) / 86400000);
-
-                const el = document.createElement('div');
-                el.className = 'tray-item';
-                el.onclick = () => editTrayDates(index);
-                el.innerHTML = `
-                    <div class="tray-info">
+                <div class="p-4 flex justify-between items-center border-b border-slate-100 dark:border-slate-800">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="bell" class="w-5 h-5 text-slate-400"></i>
                         <div>
-                            <span class="tray-badge" style="background: ${isActive ? 'var(--accent)' : 'var(--text)'}">#${tray.num}</span>
-                            <span class="days-badge">${daysCount} дн.</span>
-                        </div>
-                        <div style="font-size: 14px; color: gray;">${fmt(tray.startDate)} - ${fmt(tray.endDate)}</div>
-                    </div>
-                    <div>${isActive ? '👉' : '✏️'}</div>
-                `;
-                list.appendChild(el);
-            });
-        }
-
-        function renderLogs() {
-            const container = document.getElementById('logs-list');
-            container.innerHTML = '';
-            
-            [...state.logs].reverse().forEach(log => {
-                const el = document.createElement('div');
-                el.className = 'log-entry';
-                
-                const fmtDate = new Date(log.date).toLocaleDateString('ru-RU', {day:'numeric', month:'long', hour:'2-digit', minute:'2-digit'});
-                
-                el.innerHTML = `
-                    <div class="log-actions">
-                        <button class="action-btn btn-edit" onclick="editLog('${log.id}')">✏️</button>
-                        <button class="action-btn btn-delete" onclick="deleteLog('${log.id}')">🗑️</button>
-                    </div>
-                    <div class="log-swipe-content">
-                        <div style="font-size: 12px; color: gray;">${fmtDate}</div>
-                        <div><strong>Капа #${log.trayNumber || '-'}</strong> — ${log.type}</div>
-                        ${(log.pain > 0 || log.discomfort > 0) ? `<div style="font-size: 14px;">Боль: ${log.pain}/10 | Дискомфорт: ${log.discomfort}/10</div>` : ''}
-                        ${log.note ? `<div style="font-size: 14px; margin-top: 4px;"><i>"${log.note}"</i></div>` : ''}
-                    </div>
-                `;
-
-                let startX = 0;
-                el.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, {passive: true});
-                el.addEventListener('touchend', e => {
-                    let endX = e.changedTouches[0].clientX;
-                    if (startX - endX > 40) { 
-                        document.querySelectorAll('.log-entry').forEach(node => node.classList.remove('swiped'));
-                        el.classList.add('swiped');
-                    } else if (endX - startX > 40) { 
-                        el.classList.remove('swiped');
-                    }
-                }, {passive: true});
-
-                container.appendChild(el);
-            });
-        }
-
-        function openLogModal(id = null) {
-            document.getElementById('log-modal').classList.add('active');
-            
-            if (id) {
-                const log = state.logs.find(l => l.id === id);
-                document.getElementById('modal-title').innerText = "Редактировать запись";
-                document.getElementById('log-edit-id').value = log.id;
-                document.getElementById('log-type').value = log.type;
-                document.getElementById('log-pain').value = log.pain || 0;
-                document.getElementById('log-discomfort').value = log.discomfort || 0;
-                document.getElementById('log-note').value = log.note || '';
-            } else {
-                document.getElementById('modal-title').innerText = "Новая запись";
-                document.getElementById('log-edit-id').value = "";
-                document.getElementById('log-type').value = "Ощущения";
-                document.getElementById('log-pain').value = 0;
-                document.getElementById('log-discomfort').value = 0;
-                document.getElementById('log-note').value = '';
-            }
-        }
-
-        function closeLogModal() {
-            document.getElementById('log-modal').classList.remove('active');
-        }
-
-        function saveLog() {
-            const id = document.getElementById('log-edit-id').value;
-            
-            const logData = {
-                type: document.getElementById('log-type').value,
-                pain: document.getElementById('log-pain').value,
-                discomfort: document.getElementById('log-discomfort').value,
-                note: document.getElementById('log-note').value,
-                trayNumber: state.currentTrayNum
-            };
-
-            if (id) {
-                const idx = state.logs.findIndex(l => l.id === id);
-                if (idx !== -1) {
-                    state.logs[idx] = { ...state.logs[idx], ...logData };
-                }
-            } else {
-                logData.id = Date.now().toString();
-                logData.date = new Date().toISOString();
-                state.logs.push(logData);
-            }
-
-            saveState();
-            renderLogs();
-            closeLogModal();
-        }
-
-        window.editLog = function(id) {
-            openLogModal(id);
-        }
-
-        window.deleteLog = function(id) {
-            if(confirm('Точно удалить эту запись?')) {
-                state.logs = state.logs.filter(l => l.id !== id);
-                saveState();
-                renderLogs();
-            }
-        }
-
-        function nav(viewId) {
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.getElementById('view-' + viewId).classList.add('active');
-            
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-        }
-
-        function toggleTheme() {
-            state.theme = document.getElementById('theme-toggle').checked ? 'dark' : 'light';
-            applyTheme(state.theme);
-            saveState();
-        }
-
-        function applyTheme(theme) {
-            document.body.setAttribute('data-theme', theme);
-            document.getElementById('theme-color-meta').setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
-        }
-
-        function updateProfile() {
-            state.profile.name = document.getElementById('set-name').value;
-            state.profile.emoji = document.getElementById('set-emoji').value;
-            saveState();
-            updateUI();
-        }
-
-        function toggleNotifications() {
-            state.notifications = document.getElementById('notif-toggle').checked;
-            saveState();
-            if (state.notifications && "Notification" in window) {
-                Notification.requestPermission().then(perm => {
-                    if(perm === "granted") {
-                        new Notification("U-Align", {body: "Уведомления успешно включены!"});
-                    } else {
-                        alert("Разрешение на уведомления не получено. Убедитесь, что приложение добавлено на экран 'Домой'.");
-                        document.getElementById('notif-toggle').checked = false;
-                        state.notifications = false;
-                        saveState();
-                    }
-                });
-            }
-        }
-
-        function resetApp() {
-            if(confirm('ВНИМАНИЕ! Это удалит весь прогресс, логи и настройки. Продолжить?')) {
-                localStorage.removeItem('ualign_state');
-                location.reload();
-            }
-        }
-
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(err => {
-                    console.log('SW Registration failed: ', err);
-                });
-            });
-        }
-
-        initApp();
-    </script>
-</body>
-</html>
+                            <span class="font-semibold text-sm block">Уведомления</span>
+                            <span class="text-[10px]
